@@ -1,4 +1,11 @@
 import Foundation
 import UIKit
 
-extension UIColor { }
+extension UIColor {
+    static var YPBackground: UIColor { UIColor(named: "YP Background")! }
+    static var YPRed: UIColor {UIColor(named: "YP Red")! }
+    static var YPWhite: UIColor {UIColor(named: "YP White")! }
+    static var YPBlack: UIColor {UIColor(named: "YP Black")! }
+    static var YPGray: UIColor {UIColor(named: "YP Gray")! }
+    static var YPGreen: UIColor {UIColor(named: "YP Green")! }
+}
