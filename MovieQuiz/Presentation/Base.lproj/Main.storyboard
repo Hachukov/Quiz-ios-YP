@@ -27,7 +27,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="J01-tn-toR" userLabel="Stack View Main">
-                                <rect key="frame" x="20" y="64" width="374" height="765"/>
+                                <rect key="frame" x="20" y="54" width="374" height="765"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="253" distribution="equalCentering" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="r8C-h2-SR6">
                                         <rect key="frame" x="0.0" y="0.0" width="374" height="24"/>
@@ -73,7 +73,7 @@
                                                 <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                                 <color key="tintColor" name="YP Black"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title="НЕТ">
+                                                <state key="normal" title="Нет">
                                                     <color key="titleColor" name="YP Black"/>
                                                 </state>
                                                 <userDefinedRuntimeAttributes>
@@ -90,7 +90,7 @@
                                                 <color key="backgroundColor" name="YP White"/>
                                                 <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title="ДА">
+                                                <state key="normal" title="Да">
                                                     <color key="titleColor" name="YP Black"/>
                                                 </state>
                                                 <userDefinedRuntimeAttributes>
@@ -113,15 +113,17 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="J01-tn-toR" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="Tp4-OV-4Vx"/>
+                            <constraint firstItem="J01-tn-toR" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="Tp4-OV-4Vx"/>
                             <constraint firstItem="J01-tn-toR" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="ooW-P7-CWC"/>
                             <constraint firstItem="J01-tn-toR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="rlV-cB-3b6"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="counterLabel" destination="gPN-aE-ayL" id="t5Y-up-6rG"/>
-                        <outlet property="imagView" destination="8Re-Im-NL3" id="QBX-q6-fxB"/>
+                        <outlet property="imageView" destination="8Re-Im-NL3" id="QBX-q6-fxB"/>
+                        <outlet property="noButton" destination="ZQ0-Fh-H0p" id="EcL-m2-Tqy"/>
                         <outlet property="textLabel" destination="WdA-C7-TzX" id="UM9-IW-XZR"/>
+                        <outlet property="yesButton" destination="4AS-Mg-j0f" id="6xB-KA-JAy"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

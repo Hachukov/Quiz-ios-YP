@@ -2,9 +2,11 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
-    @IBOutlet weak private var imagView: UIImageView!
+    @IBOutlet weak private var imageView: UIImageView!
     @IBOutlet weak private var textLabel: UILabel!
     @IBOutlet weak private var counterLabel: UILabel!
+    @IBOutlet weak var yesButton: UIButton!
+    @IBOutlet weak var noButton: UIButton!
     private var currentQuestionIndex = 0
     private var correctAnswers: Int = 0
     
@@ -14,7 +16,7 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func show(quiz step: QuizStepViewModel) {
-        self.imagView.image = step.image
+        self.imageView.image = step.image
         self.counterLabel.text = step.questionNumber
     }
     
@@ -38,7 +40,9 @@ final class MovieQuizViewController: UIViewController {
         alert.addAction(action)
         self.present(alert, animated: true, completion: nil)
     }
+    
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
+        self.textLabel.text = model.text
         return QuizStepViewModel(image: UIImage(named: model.image) ?? UIImage(),
                                  question: model.text,
                                  questionNumber: "\(currentQuestionIndex + 1)/\(questions.count)")
@@ -60,25 +64,31 @@ final class MovieQuizViewController: UIViewController {
     }
     
     private func showAnswerResult(isCorrect: Bool) {
-        imagView.layer.masksToBounds = true // разрешение на рисование
-        imagView.layer.borderWidth = 8 // толщина рамки
-        imagView.layer.cornerRadius = 20 // радиус скругление углов
-        
+        imageView.layer.masksToBounds = true // разрешение на рисование
+        imageView.layer.borderWidth = 8 // толщина рамки
+        imageView.layer.cornerRadius = 20 // радиус скругление углов
+        // отключение кликабельности кнопок
+        yesButton.isEnabled = false
+        noButton.isEnabled = false
         if isCorrect {
-            imagView.layer.borderColor = UIColor.YPGreen.cgColor// цвет рамки
+            imageView.layer.borderColor = UIColor.YPGreen.cgColor// цвет рамки
             correctAnswers += 1
             
         } else {
-            imagView.layer.borderColor = UIColor.YPRed.cgColor // цвет рамки
+            imageView.layer.borderColor = UIColor.YPRed.cgColor // цвет рамки
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.showNextQuestionOrResults()
-            self.imagView.layer.borderWidth = 0
+            self.imageView.layer.borderWidth = 0
         }
     }
     
     private func showNextQuestionOrResults() {
+        // включение кликабельности кнопок 
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
+
         if currentQuestionIndex == questions.count - 1 {
             let text = "Ваш результат: \(correctAnswers) из 10"
             let viewModel = QuizResultsViewModel(title: "Раунд окончен",
@@ -86,6 +96,7 @@ final class MovieQuizViewController: UIViewController {
                                                  buttonText: "Сыграть еще раз")
             show(quiz: viewModel)
         } else {
+            
             currentQuestionIndex += 1
             let nextQuestion = questions[self.currentQuestionIndex]
             let viewModel = convert(model: nextQuestion)
