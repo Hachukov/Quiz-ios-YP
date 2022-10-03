@@ -5,8 +5,8 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet weak private var imageView: UIImageView!
     @IBOutlet weak private var textLabel: UILabel!
     @IBOutlet weak private var counterLabel: UILabel!
-    @IBOutlet weak var yesButton: UIButton!
-    @IBOutlet weak var noButton: UIButton!
+    @IBOutlet weak private var yesButton: UIButton!
+    @IBOutlet weak private var noButton: UIButton!
     private var currentQuestionIndex = 0
     private var correctAnswers: Int = 0
     
@@ -25,7 +25,8 @@ final class MovieQuizViewController: UIViewController {
                                       message: result.text,
                                       preferredStyle: .alert)
         let action = UIAlertAction(title: result.buttonText,
-                                   style: .default) { _ in
+                                   style: .cancel) {[weak self] _ in
+            guard let self = self else {return}
             // Обнуляем счетчик вопросов
             self.currentQuestionIndex = 0
             // Обнуляем счетчик правельных ответов
@@ -48,6 +49,7 @@ final class MovieQuizViewController: UIViewController {
                                  questionNumber: "\(currentQuestionIndex + 1)/\(questions.count)")
     }
     @IBAction func noButton(_ sender: Any) {
+
         if questions[currentQuestionIndex].correctAnswer == false {
             showAnswerResult(isCorrect: true)
         } else {
@@ -78,7 +80,8 @@ final class MovieQuizViewController: UIViewController {
             imageView.layer.borderColor = UIColor.YPRed.cgColor // цвет рамки
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {[weak self] in
+            guard let self = self else {return}
             self.showNextQuestionOrResults()
             self.imageView.layer.borderWidth = 0
         }
