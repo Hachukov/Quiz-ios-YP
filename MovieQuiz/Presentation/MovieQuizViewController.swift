@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Lifecycle
     @IBOutlet weak private var imageView: UIImageView!
     @IBOutlet weak private var textLabel: UILabel!
@@ -10,12 +10,26 @@ final class MovieQuizViewController: UIViewController {
     private var currentQuestionIndex = 0
     private var correctAnswers: Int = 0
     private let questionsAmount: Int = 10
-    private let questionFactory = QuestionFactory()
+    private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        show(quiz: convert(model: questionFactory.requestNextQuestion()!))
+        questionFactory = QuestionFactory(delegate: self)
+        questionFactory?.requestNextQuestion()
+    }
+    
+    // MARK: - QuestionFactoryDelegate
+    func didRecieveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
+        }
+        currentQuestion = question
+        let viewModel = convert(model: question)
+        DispatchQueue.main.async {[weak self] in
+            self?.show(quiz: viewModel)
+        }
+       
     }
     
     private func show(quiz step: QuizStepViewModel) {
@@ -37,11 +51,7 @@ final class MovieQuizViewController: UIViewController {
             self.counterLabel.text = "\(self.correctAnswers + 1)/10"
             
             // заново показываем первый вопрос
-            if let firstQuestion = self.questionFactory.requestNextQuestion() {
-                self.currentQuestion = firstQuestion
-                let viewModel = self.convert(model: firstQuestion)
-                self.show(quiz: viewModel)
-            }
+            self.questionFactory?.requestNextQuestion()
         }
         alert.addAction(action)
         self.present(alert, animated: true, completion: nil)
@@ -114,11 +124,7 @@ final class MovieQuizViewController: UIViewController {
             show(quiz: viewModel)
         } else {
             currentQuestionIndex += 1
-            if let nextQuestion = questionFactory.requestNextQuestion() {
-                self.currentQuestion = nextQuestion
-                let viewModel = convert(model: nextQuestion)
-                self.show(quiz: viewModel)
-            }
+            questionFactory?.requestNextQuestion()
         }
     }
 }
