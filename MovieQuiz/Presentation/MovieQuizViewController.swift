@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterProtocol {
     // MARK: - Lifecycle
     @IBOutlet weak private var imageView: UIImageView!
     @IBOutlet weak private var textLabel: UILabel!
@@ -12,11 +12,26 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
+    private var delegate: AlertPresenterDelegate?
+    private var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    private let fileName = "top250MoviesIMDB.json"
+  
     
     override func viewDidLoad() {
         super.viewDidLoad()
         questionFactory = QuestionFactory(delegate: self)
         questionFactory?.requestNextQuestion()
+        delegate = AlertPresenter(delegate: self)
+        documentsURL.appendPathComponent(fileName)
+        let jsonString = try! String(contentsOf: documentsURL)
+        let data = jsonString.data(using: .utf8)!
+      
+        do {
+            let movie = try JSONDecoder().decode(Top.self, from: data)
+            print(movie)
+        } catch {
+            print("Failed to parse: \(error.localizedDescription)")
+        }
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -29,32 +44,32 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         DispatchQueue.main.async {[weak self] in
             self?.show(quiz: viewModel)
         }
+    }
+    
+    // MARK: - AlertPresenterDelegate
+    func updateGameCounter() {
+        //Обнуляем счетчик вопросов
+        self.currentQuestionIndex = 0
+        // Обнуляем счетчик правельных ответов
+        self.correctAnswers = 0
+        self.counterLabel.text = "\(self.correctAnswers + 1)/10"
+        // заново показываем первый вопрос
+        self.questionFactory?.requestNextQuestion()
+    }
+
+    func show(quiz result: QuizResultsViewModel) {
+        let alertModel = AlertModel(title: result.title,
+                                    message: result.text,
+                                    buttonText: result.buttonText)
+        guard let delegate = delegate else {return}
+        present(delegate.showAlert(alertModel: alertModel), animated: true)
        
     }
     
+    // MARK: - AlertPresenterProtocol
     private func show(quiz step: QuizStepViewModel) {
         self.imageView.image = step.image
         self.counterLabel.text = step.questionNumber
-    }
-    
-    private func show(quiz result: QuizResultsViewModel) {
-        let alert = UIAlertController(title: result.title,
-                                      message: result.text,
-                                      preferredStyle: .alert)
-        let action = UIAlertAction(title: result.buttonText,
-                                   style: .cancel) {[weak self] _ in
-            guard let self = self else {return}
-            // Обнуляем счетчик вопросов
-            self.currentQuestionIndex = 0
-            // Обнуляем счетчик правельных ответов
-            self.correctAnswers = 0
-            self.counterLabel.text = "\(self.correctAnswers + 1)/10"
-            
-            // заново показываем первый вопрос
-            self.questionFactory?.requestNextQuestion()
-        }
-        alert.addAction(action)
-        self.present(alert, animated: true, completion: nil)
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
