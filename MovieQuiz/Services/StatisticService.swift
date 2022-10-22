@@ -27,6 +27,7 @@ final class StatisticServiceImplementation: StatisticService {
             bestGame.correct = count
             bestGame.date = Date()
         }
+        totalAccuracy = Double(count) / Double(amount) * 100
     }
     
    

@@ -14,8 +14,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     private var currentQuestion: QuizQuestion?
     private var delegate: AlertPresenterDelegate?
     private var documentsURL = Bundle.main.url(forResource: "top250MoviesIMDB", withExtension: "json")
-   // private var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-   // private let fileName = "top250MoviesIMDB.json"
     private var statisticService: StatisticService?
   
     
@@ -25,11 +23,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         questionFactory?.requestNextQuestion()
         delegate = AlertPresenter(delegate: self)
         statisticService = StatisticServiceImplementation()
-        //documentsURL.appendPathComponent(fileName)
-        guard let documentsURL = documentsURL else {
-            return
-        }
-
+        guard let documentsURL = documentsURL else {return}
         let jsonString = try! String(contentsOf: documentsURL)
         let data = jsonString.data(using: .utf8)!
       
