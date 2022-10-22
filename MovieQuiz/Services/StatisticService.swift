@@ -10,7 +10,7 @@ import Foundation
 protocol StatisticService {
     func store(correct count: Int, total amount: Int)
     var totalAccuracy: Double {get}
-    var gamesCount: Int {get}
+    var gamesCount: Int {get set}
     var bestGame: GameRecord {get}
 }
 
@@ -19,16 +19,53 @@ final class StatisticServiceImplementation: StatisticService {
     private var userDefaults = UserDefaults.standard
  
     private enum Keys: String {
-        case correct, total, bestGame, gamesCount
+        case correct, totalAccuracy, bestGame, gamesCount
     }
     
     func store(correct count: Int, total amount: Int) {
-        <#code#>
+        if bestGame.correct < count {
+            bestGame.correct = count
+            bestGame.date = Date()
+        }
     }
     
    
-    var gamesCount: Int = 0
-    var totalAccuracy: Double = 0.0
+    var gamesCount: Int {
+        get {
+            //возврощаем значения game count
+            guard let data = userDefaults.data(forKey: Keys.gamesCount.rawValue),
+                  let gameCount = try? JSONDecoder().decode(Int.self, from: data) else {
+                return 0
+            }
+            return gameCount
+ 
+        }
+        set {
+            // Сохраняем новое значение для games count
+            guard let data = try? JSONEncoder().encode(newValue) else {
+                print("Не возможно сохранить результат")
+                return
+                
+            }
+            userDefaults.set(data, forKey: Keys.gamesCount.rawValue)
+        }
+    }
+    var totalAccuracy: Double {
+        get {
+            guard let data = userDefaults.data(forKey: Keys.totalAccuracy.rawValue),
+                  let total = try? JSONDecoder().decode(Double.self, from: data)  else {
+                return 0.0
+            }
+            return total
+        }
+        set {
+            guard let data = try? JSONEncoder().encode(newValue) else {
+                print("Не возможно сохранить результат")
+                return
+            }
+            userDefaults.set(data, forKey: Keys.totalAccuracy.rawValue)
+        }
+    }
     var bestGame: GameRecord {
         get {
             guard let data = userDefaults.data(forKey: Keys.bestGame.rawValue),
@@ -48,7 +85,8 @@ final class StatisticServiceImplementation: StatisticService {
 }
 
 struct GameRecord: Codable {
-    let correct: Int
+    var correct: Int
     let total: Int
-    let date: Date
+    var date: Date
+
 }

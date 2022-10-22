@@ -13,8 +13,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     private var delegate: AlertPresenterDelegate?
-    private var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-    private let fileName = "top250MoviesIMDB.json"
+    private var documentsURL = Bundle.main.url(forResource: "top250MoviesIMDB", withExtension: "json")
+   // private var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+   // private let fileName = "top250MoviesIMDB.json"
+    private var statisticService: StatisticService?
   
     
     override func viewDidLoad() {
@@ -22,7 +24,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         questionFactory = QuestionFactory(delegate: self)
         questionFactory?.requestNextQuestion()
         delegate = AlertPresenter(delegate: self)
-        documentsURL.appendPathComponent(fileName)
+        statisticService = StatisticServiceImplementation()
+        //documentsURL.appendPathComponent(fileName)
+        guard let documentsURL = documentsURL else {
+            return
+        }
+
         let jsonString = try! String(contentsOf: documentsURL)
         let data = jsonString.data(using: .utf8)!
       
@@ -52,14 +59,26 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         self.currentQuestionIndex = 0
         // Обнуляем счетчик правельных ответов
         self.correctAnswers = 0
-        self.counterLabel.text = "\(self.correctAnswers + 1)/10"
+        self.counterLabel.text = "\(self.correctAnswers)/10"
         // заново показываем первый вопрос
         self.questionFactory?.requestNextQuestion()
+    
     }
 
     func show(quiz result: QuizResultsViewModel) {
+        guard let statisticService = statisticService else {return}
+        self.statisticService?.gamesCount += 1
+        self.statisticService?.store(correct: correctAnswers, total: 10)
+
         let alertModel = AlertModel(title: result.title,
-                                    message: result.text,
+                                    message: """
+                                    Ваш результат: \(correctAnswers)/10\n
+                                    Количество сыгранных квизов: \(statisticService.gamesCount)\n
+                                    Рекорд: \(statisticService.bestGame.correct)/10 (\(statisticService.bestGame.date.dateTimeString))\n
+                                    Средняя точнось: \(String(format: "%.2f", statisticService.totalAccuracy))%"
+
+                                    
+                                    """,
                                     buttonText: result.buttonText)
         guard let delegate = delegate else {return}
         present(delegate.showAlert(alertModel: alertModel), animated: true)
