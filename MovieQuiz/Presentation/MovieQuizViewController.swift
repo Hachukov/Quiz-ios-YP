@@ -48,14 +48,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     }
     
     // MARK: - AlertPresenterDelegate
-    func updateGameCounter() {
+    func resetGame() {
         //Обнуляем счетчик вопросов
-        self.currentQuestionIndex = 0
+        currentQuestionIndex = 0
         // Обнуляем счетчик правельных ответов
-        self.correctAnswers = 0
-        self.counterLabel.text = "\(self.correctAnswers)/10"
+        correctAnswers = 0
+        counterLabel.text = "\(self.correctAnswers)/10"
         // заново показываем первый вопрос
-        self.questionFactory?.requestNextQuestion()
+        questionFactory?.requestNextQuestion()
     
     }
 
@@ -66,16 +66,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
 
         let alertModel = AlertModel(title: result.title,
                                     message: """
-                                    Ваш результат: \(correctAnswers)/10\n
-                                    Количество сыгранных квизов: \(statisticService.gamesCount)\n
-                                    Рекорд: \(statisticService.bestGame.correct)/10 (\(statisticService.bestGame.date.dateTimeString))\n
+                                    Ваш результат: \(correctAnswers)/10
+                                    Количество сыгранных квизов: \(statisticService.gamesCount)
+                                    Рекорд: \(statisticService.bestGame.correct)/10 (\(statisticService.bestGame.date.dateTimeString))
                                     Средняя точнось: \(String(format: "%.2f", statisticService.totalAccuracy))%"
-
-                                    
                                     """,
                                     buttonText: result.buttonText)
-        guard let delegate = delegate else {return}
-        present(delegate.showAlert(alertModel: alertModel), animated: true)
+//        guard let delegate = delegate else {return}
+//        present(delegate.showAlert(alertModel: alertModel), animated: true)
+        guard let alert = delegate?.showAlert(alertModel: alertModel) else { return }
+        present(alert, animated: true)
        
     }
     
@@ -146,7 +146,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
 
         if currentQuestionIndex == questionsAmount - 1 {
             let text = "Ваш результат: \(correctAnswers) из 10"
-            let viewModel = QuizResultsViewModel(title: "Раунд окончен",
+            let viewModel = QuizResultsViewModel(title: "Этот раунд окончен!",
                                                  text: text,
                                                  buttonText: "Сыграть еще раз")
             show(quiz: viewModel)

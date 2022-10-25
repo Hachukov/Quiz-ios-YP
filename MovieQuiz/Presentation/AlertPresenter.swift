@@ -9,7 +9,7 @@ import UIKit
 
 class AlertPresenter: AlertPresenterDelegate {
     
-    var delegate: AlertPresenterProtocol?
+   var delegate: AlertPresenterProtocol?
     init(delegate: AlertPresenterProtocol) {
         self.delegate = delegate
     }
@@ -20,7 +20,7 @@ class AlertPresenter: AlertPresenterDelegate {
                                       preferredStyle: .alert)
         let action = UIAlertAction(title: alertModel.buttonText,
                                    style: .cancel) {_ in
-            self.delegate?.updateGameCounter()
+            self.delegate?.resetGame()
         }
         
         alert.addAction(action)
