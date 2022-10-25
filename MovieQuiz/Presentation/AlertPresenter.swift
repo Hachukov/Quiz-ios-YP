@@ -9,7 +9,7 @@ import UIKit
 
 class AlertPresenter: AlertPresenterDelegate {
     
-   var delegate: AlertPresenterProtocol?
+    weak var delegate: AlertPresenterProtocol?
     init(delegate: AlertPresenterProtocol) {
         self.delegate = delegate
     }
@@ -19,7 +19,8 @@ class AlertPresenter: AlertPresenterDelegate {
                                       message: alertModel.message,
                                       preferredStyle: .alert)
         let action = UIAlertAction(title: alertModel.buttonText,
-                                   style: .cancel) {_ in
+                                   style: .cancel) {[weak self] _ in
+            guard let self = self else {return}
             self.delegate?.resetGame()
         }
         

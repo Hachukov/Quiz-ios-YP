@@ -13,7 +13,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     private var delegate: AlertPresenterDelegate?
-    private var documentsURL = Bundle.main.url(forResource: "top250MoviesIMDB", withExtension: "json")
     private var statisticService: StatisticService?
   
     
@@ -23,20 +22,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         questionFactory?.requestNextQuestion()
         delegate = AlertPresenter(delegate: self)
         statisticService = StatisticServiceImplementation()
-        guard let documentsURL = documentsURL else {return}
-        let jsonString = try! String(contentsOf: documentsURL)
-        let data = jsonString.data(using: .utf8)!
-      
-        do {
-            let movie = try JSONDecoder().decode(Top.self, from: data)
-            print(movie)
-        } catch {
-            print("Failed to parse: \(error.localizedDescription)")
-        }
+
     }
     
     // MARK: - QuestionFactoryDelegate
-    func didRecieveNextQuestion(question: QuizQuestion?) {
+   func didRecieveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
             return
         }
@@ -59,7 +49,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     }
 
-    func show(quiz result: QuizResultsViewModel) {
+   private func show(quiz result: QuizResultsViewModel) {
         guard let statisticService = statisticService else {return}
         self.statisticService?.gamesCount += 1
         self.statisticService?.store(correct: correctAnswers, total: 10)
@@ -92,7 +82,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                                  question: model.text,
                                  questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
-    @IBAction func noButton(_ sender: Any) {
+    @IBAction private func noButton(_ sender: Any) {
         guard let currentQuestion = currentQuestion else {
             return
         }
@@ -104,7 +94,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         }
     }
     
-    @IBAction func yesButton(_ sender: Any) {
+    @IBAction private func yesButton(_ sender: Any) {
         guard let currentQuestion = currentQuestion else {
             print("error")
             return
