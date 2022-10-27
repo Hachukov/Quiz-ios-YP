@@ -34,69 +34,38 @@ final class StatisticServiceImplementation: StatisticService {
     
     var allTimeQuestions: Int {
         get {
-//            let questions = userDefaults.integer(forKey: Keys.allTimeQuestions.rawValue)
-//            return questions
-            guard let data = userDefaults.data(forKey: Keys.allTimeQuestions.rawValue),
-                    let questions = try? JSONDecoder().decode(Int.self, from: data) else {
-                return 0
-            }
+            let questions = userDefaults.integer(forKey: Keys.allTimeQuestions.rawValue)
             return questions
         }
         set {
-//            let questions = Int()
-//            userDefaults.set(questions, forKey: Keys.allTimeQuestions.rawValue)
-            guard let data = try? JSONEncoder().encode(newValue) else {
-                print("Не возможно сохранить questions")
-                      return
-            }
-            userDefaults.set(data, forKey: Keys.allTimeQuestions.rawValue)
+            
+            userDefaults.set(newValue, forKey: Keys.allTimeQuestions.rawValue)
         }
     }
-    
     var allTimeCorrectAnswers: Int {
         get {
-//            let correctAnswers = userDefaults.integer(forKey: Keys.allTimeCorrectAnswers.rawValue)
-//            return correctAnswers
-            guard let data = userDefaults.data(forKey: Keys.allTimeCorrectAnswers.rawValue),
-                    let answers = try? JSONDecoder().decode(Int.self, from: data) else  {
-                return 0
-            }
+            let answers = userDefaults.integer(forKey: Keys.allTimeCorrectAnswers.rawValue)
             return answers
         }
         set {
-//            let correctAnswers = Int()
-//            userDefaults.set(correctAnswers, forKey: Keys.allTimeCorrectAnswers.rawValue)
-            guard let data = try? JSONEncoder().encode(newValue) else {
-                print("Не возможно сохранить correctAnswers")
-                return
-            }
-            userDefaults.set(data, forKey: Keys.allTimeCorrectAnswers.rawValue)
+            userDefaults.set(newValue, forKey: Keys.allTimeCorrectAnswers.rawValue)
         }
     }
     
     var gamesCount: Int {
         get {
             //возврощаем значения game count
-            guard let data = userDefaults.data(forKey: Keys.gamesCount.rawValue),
-                  let gameCount = try? JSONDecoder().decode(Int.self, from: data) else {
-                return 0
-            }
-            return gameCount
-            
+            let count = userDefaults.integer(forKey: Keys.gamesCount.rawValue)
+            return count
         }
         set {
             // Сохраняем новое значение для games count
-            guard let data = try? JSONEncoder().encode(newValue) else {
-                print("Не возможно сохранить результат gamesCount")
-                return
-                
-            }
-            userDefaults.set(data, forKey: Keys.gamesCount.rawValue)
+            userDefaults.set(newValue, forKey: Keys.gamesCount.rawValue)
         }
     }
     
     var totalAccuracy = Double()
-
+    
     var bestGame: GameRecord {
         get {
             guard let data = userDefaults.data(forKey: Keys.bestGame.rawValue),
