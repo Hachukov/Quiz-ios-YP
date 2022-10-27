@@ -19,11 +19,10 @@ class AlertPresenter: AlertPresenterDelegate {
                                       message: alertModel.message,
                                       preferredStyle: .alert)
         let action = UIAlertAction(title: alertModel.buttonText,
-                                   style: .cancel) {[weak self] _ in
-            guard let self = self else {return}
+                                   style: .cancel) { [weak self] _ in
+            guard let self = self else { return }
             self.delegate?.resetGame()
         }
-        
         alert.addAction(action)
         return alert
     }
