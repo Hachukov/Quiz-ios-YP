@@ -7,6 +7,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     @IBOutlet weak private var counterLabel: UILabel!
     @IBOutlet weak private var yesButton: UIButton!
     @IBOutlet weak private var noButton: UIButton!
+    @IBOutlet weak private var activityIndicator: UIActivityIndicatorView!
     private var currentQuestionIndex = 0
     private var correctAnswers: Int = 0
     private let questionsAmount: Int = 10
@@ -14,7 +15,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     private var currentQuestion: QuizQuestion?
     private var delegate: AlertPresenterDelegate?
     private var statisticService: StatisticService?
-  
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,7 +22,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         questionFactory?.requestNextQuestion()
         delegate = AlertPresenter(delegate: self)
         statisticService = StatisticServiceImplementation()
-
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -69,6 +68,31 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         guard let alert = delegate?.showAlert(alertModel: alertModel) else { return }
         present(alert, animated: true)
        
+    }
+    
+    // MARK: - Activity Indicator and error Alert
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false // индикатор загрузки не скрыт
+        activityIndicator.startAnimating() // запуск анимации
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true // индикатор загруски скрыт
+        activityIndicator.stopAnimating()
+    }
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let alert = AlertModel(title: "Ошибка",
+                               message: message,
+                               buttonText: "Попробовать еще раз") { [weak self] in
+      
+            guard let self = self else { return }
+            self.resetGame()
+        }
+        guard let alert =  delegate?.showAlert(alertModel: alert) else { return }
+        present(alert, animated: true)
     }
     
     // MARK: - AlertPresenterProtocol
