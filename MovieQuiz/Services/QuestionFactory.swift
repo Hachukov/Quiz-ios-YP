@@ -12,6 +12,8 @@ class QuestionFactory: QuestionFactoryProtocol {
     weak var delegate: QuestionFactoryDelegate?
     weak var alertPresenterDelegat: AlertPresenterDelegate?
     weak var alertPresenterProtocol: AlertPresenterProtocol?
+    private let randomQuestion = Bool.random()
+    private var questionText = ""
     
     init(moviesLoader: MoviesLoadingProtocol, delegate: QuestionFactoryDelegate?) {
         self.moviesLoader = moviesLoader
@@ -98,9 +100,14 @@ class QuestionFactory: QuestionFactoryProtocol {
             }
             
             let rating = Float(movie.rating) ?? 0
-            
-// TODO: - Добавить метод генерации текста вопроса
-            let text = "Рейтинг этого фильма больше чем 7?"
+
+           // Генерация текста вопроса
+            if self.randomQuestion {
+                self.questionText = "Рейтинг этого фильма больше чем \(String(format: "%.1f", rating + 1)) ?"
+            } else {
+                self.questionText = "Рейтинг этого фильма меньше чем \(String(format: "%.1f", rating - 1))?"
+            }
+            let text = self.questionText
             let correctAnswer = rating > 7
             
             let question = QuizQuestion(image: imageData,
