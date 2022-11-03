@@ -8,59 +8,116 @@
 import Foundation
 
 class QuestionFactory: QuestionFactoryProtocol {
+    private let moviesLoader: MoviesLoadingProtocol
+    weak var delegate: QuestionFactoryDelegate?
+    weak var alertPresenterDelegat: AlertPresenterDelegate?
+    weak var alertPresenterProtocol: AlertPresenterProtocol?
+    private let randomQuestion = Bool.random()
+    private var questionText = ""
     
-    weak var delegate: QuestionFactoryDelegate? 
-    
-    init(delegate: QuestionFactoryDelegate?) {
+    init(moviesLoader: MoviesLoadingProtocol, delegate: QuestionFactoryDelegate?) {
+        self.moviesLoader = moviesLoader
         self.delegate = delegate
     }
-    private let questions: [QuizQuestion] = [
-            QuizQuestion(
-                image: "The Godfather",
-                text: "Рейтинг этого фильма больше чем 6?",
-                correctAnswer: true),
-            QuizQuestion(
-                image: "The Dark Knight",
-                text: "Рейтинг этого фильма больше чем 6?",
-                correctAnswer: true),
-            QuizQuestion(
-                image: "Kill Bill",
-                text: "Рейтинг этого фильма больше чем 6?",
-                correctAnswer: true),
-            QuizQuestion(
-                image: "The Avengers",
-                text: "Рейтинг этого фильма больше чем 6?",
-                correctAnswer: true),
-            QuizQuestion(
-                image: "Deadpool",
-                text: "Рейтинг этого фильма больше чем 6?",
-                correctAnswer: true),
-            QuizQuestion(
-                image: "The Green Knight",
-                text: "Рейтинг этого фильма больше чем 6?",
-                correctAnswer: true),
-            QuizQuestion(
-                image: "Old",
-                text: "Рейтинг этого фильма больше чем 6?",
-                correctAnswer: false),
-            QuizQuestion(
-                image: "The Ice Age Adventures of Buck Wild",
-                text: "Рейтинг этого фильма больше чем 6?",
-                correctAnswer: false),
-            QuizQuestion(
-                image: "Tesla",
-                text: "Рейтинг этого фильма больше чем 6?",
-                correctAnswer: false),
-            QuizQuestion(
-                image: "Vivarium",
-                text: "Рейтинг этого фильма больше чем 6?",
-                correctAnswer: false)
-        ]
+    
+    private var movies: [MostPopularMovie] = []
+    
+    func loadData() {
+        moviesLoader.loadMovies { [weak self] result in
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                switch result {
+                case .success(let mostPopularMovies):
+                    self.movies = mostPopularMovies.items // сохранения фильма в переменную
+                    self.delegate?.didLoadDataFromServer() // сообщаем что данные загрузились
+                case .failure(let error):
+                    self.delegate?.didFailToLoadData(with: error) // сообщаем об ошибке нашему MovieQuizViewController
+                }
+            }
+        }
+    }
+    
+//    private let questions: [QuizQuestion] = [
+//            QuizQuestion(
+//                image: "The Godfather",
+//                text: "Рейтинг этого фильма больше чем 6?",
+//                correctAnswer: true),
+//            QuizQuestion(
+//                image: "The Dark Knight",
+//                text: "Рейтинг этого фильма больше чем 6?",
+//                correctAnswer: true),
+//            QuizQuestion(
+//                image: "Kill Bill",
+//                text: "Рейтинг этого фильма больше чем 6?",
+//                correctAnswer: true),
+//            QuizQuestion(
+//                image: "The Avengers",
+//                text: "Рейтинг этого фильма больше чем 6?",
+//                correctAnswer: true),
+//            QuizQuestion(
+//                image: "Deadpool",
+//                text: "Рейтинг этого фильма больше чем 6?",
+//                correctAnswer: true),
+//            QuizQuestion(
+//                image: "The Green Knight",
+//                text: "Рейтинг этого фильма больше чем 6?",
+//                correctAnswer: true),
+//            QuizQuestion(
+//                image: "Old",
+//                text: "Рейтинг этого фильма больше чем 6?",
+//                correctAnswer: false),
+//            QuizQuestion(
+//                image: "The Ice Age Adventures of Buck Wild",
+//                text: "Рейтинг этого фильма больше чем 6?",
+//                correctAnswer: false),
+//            QuizQuestion(
+//                image: "Tesla",
+//                text: "Рейтинг этого фильма больше чем 6?",
+//                correctAnswer: false),
+//            QuizQuestion(
+//                image: "Vivarium",
+//                text: "Рейтинг этого фильма больше чем 6?",
+//                correctAnswer: false)
+//        ]
     
     func requestNextQuestion(){
-        let index = (0..<questions.count).randomElement() ?? 0
-        let question = questions[safe: index]
-        delegate?.didRecieveNextQuestion(question: question)
+        // запускаем выполнение функции в другом потоке
+        DispatchQueue.global().async { [weak self] in
+            guard let self = self else { return }
+            let index = (0..<self.movies.count).randomElement() ?? 0
+            
+            guard let movie = self.movies[safe: index] else { return }
+            
+            var imageData = Data()
+            
+            // попытка создание данных из URL
+            do {
+                imageData = try Data(contentsOf: movie.resizedImageURL)
+            } catch {
+             // TODO: - сделать алерт для ошибки
+                print("Failed to load image")
+                
+            }
+            
+            let rating = Float(movie.rating) ?? 0
+
+           // Генерация текста вопроса
+            if self.randomQuestion {
+                self.questionText = "Рейтинг этого фильма больше чем \(String(format: "%.1f", rating + 1)) ?"
+            } else {
+                self.questionText = "Рейтинг этого фильма меньше чем \(String(format: "%.1f", rating - 1))?"
+            }
+            let text = self.questionText
+            let correctAnswer = rating > 7
+            
+            let question = QuizQuestion(image: imageData,
+                                        text: text,
+                                        correctAnswer: correctAnswer)
+            
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.delegate?.didRecieveNextQuestion(question: question)
+            }
+        }
     }
 }
-

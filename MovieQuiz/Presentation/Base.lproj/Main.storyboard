@@ -109,16 +109,22 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="B5G-Rd-MtQ">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
+                            <constraint firstItem="B5G-Rd-MtQ" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="LOD-cn-mVD"/>
                             <constraint firstItem="J01-tn-toR" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="Tp4-OV-4Vx"/>
+                            <constraint firstItem="B5G-Rd-MtQ" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="kY1-fJ-QJo"/>
                             <constraint firstItem="J01-tn-toR" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="ooW-P7-CWC"/>
                             <constraint firstItem="J01-tn-toR" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="rlV-cB-3b6"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="B5G-Rd-MtQ" id="5YW-Qu-YPS"/>
                         <outlet property="counterLabel" destination="gPN-aE-ayL" id="t5Y-up-6rG"/>
                         <outlet property="imageView" destination="8Re-Im-NL3" id="QBX-q6-fxB"/>
                         <outlet property="noButton" destination="ZQ0-Fh-H0p" id="EcL-m2-Tqy"/>
