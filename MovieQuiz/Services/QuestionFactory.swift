@@ -6,12 +6,12 @@
 //
 
 import Foundation
+import UIKit
 
 class QuestionFactory: QuestionFactoryProtocol {
     private let moviesLoader: MoviesLoadingProtocol
     weak var delegate: QuestionFactoryDelegate?
-    weak var alertPresenterProtocol: AlertPresenterProtocol?
-    private let randomQuestion = Bool.random()
+    private var randomQuestion = Bool.random()
     private var questionText = ""
     
     init(moviesLoader: MoviesLoadingProtocol, delegate: QuestionFactoryDelegate?) {
@@ -35,9 +35,10 @@ class QuestionFactory: QuestionFactoryProtocol {
             }
         }
     }
-
     
     func requestNextQuestion(){
+    
+        
         // запускаем выполнение функции в другом потоке
         DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
@@ -52,21 +53,23 @@ class QuestionFactory: QuestionFactoryProtocol {
                 imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
              // TODO: - сделать алерт для ошибки
-                print("Failed to load image")
-                
+                print("Failed to load image")    
             }
             
             let rating = Float(movie.rating) ?? 0
-
+            var correctAnswer = true
            // Генерация текста вопроса
             if self.randomQuestion {
-                self.questionText = "Рейтинг этого фильма больше чем \(String(format: "%.1f", rating + 1)) ?"
+                self.questionText = "Рейтинг этого фильма больше чем \(String(format: "%.1f", rating + Float.random(in: 0.2...(10.0 - rating)))) ?"
+                correctAnswer = false
+                self.randomQuestion = .random()
             } else {
-                self.questionText = "Рейтинг этого фильма меньше чем \(String(format: "%.1f", rating - 1))?"
+                self.questionText = "Рейтинг этого фильма больше чем \(String(format: "%.1f", rating - Float.random(in: 0.2...2.0))) ?"
+                correctAnswer = true
+                self.randomQuestion = .random()
             }
             let text = self.questionText
-            let correctAnswer = rating > 7
-            
+         
             let question = QuizQuestion(image: imageData,
                                         text: text,
                                         correctAnswer: correctAnswer)

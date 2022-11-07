@@ -7,27 +7,6 @@
 
 import Foundation
 
-//// MARK: - MostPopularMovies
-//struct MostPopularMovies: Codable {
-//    let errorMessage: String
-//    let items: [MostPopularMovie]
-//}
-//
-//// MARK: - MostPopularMovie
-//struct MostPopularMovie: Codable {
-//    let crew, fullTitle, id, imDBRating: String
-//    let imDBRatingCount: String
-//    let imageURL: URL
-//    let rank, rankUpDown, title, year: String
-//
-//    enum PopularMovieKeys: String, CodingKey {
-//        case crew, fullTitle, id
-//        case imDBRating = "imDbRating"
-//        case imDBRatingCount = "imDbRatingCount"
-//        case imageURL = "image"
-//        case rank, rankUpDown, title, year
-//    }
-//}
 
 struct MostPopularMovies: Codable {
     let errorMessage: String
