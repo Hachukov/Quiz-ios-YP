@@ -61,15 +61,8 @@ class QuestionFactory: QuestionFactoryProtocol {
             let rating = Float(movie.rating) ?? 0
             var correctAnswer = true
            // Генерация текста вопроса
-            if self.randomQuestion {
-                self.questionText = "Рейтинг этого фильма больше чем \(String(format: "%.1f", rating + Float.random(in: 0.2...(10.0 - rating)))) ?"
-                correctAnswer = false
-                self.randomQuestion = .random()
-            } else {
-                self.questionText = "Рейтинг этого фильма больше чем \(String(format: "%.1f", rating - Float.random(in: 0.2...2.0))) ?"
-                correctAnswer = true
-                self.randomQuestion = .random()
-            }
+            correctAnswer = rating > 8.5 ? true : false
+            
             let text = self.questionText
          
             let question = QuizQuestion(image: imageData,
