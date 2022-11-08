@@ -37,8 +37,7 @@ class QuestionFactory: QuestionFactoryProtocol {
     }
     
     func requestNextQuestion(){
-    
-        
+            
         // запускаем выполнение функции в другом потоке
         DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
@@ -53,7 +52,10 @@ class QuestionFactory: QuestionFactoryProtocol {
                 imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
              // TODO: - сделать алерт для ошибки
-                print("Failed to load image")    
+                DispatchQueue.main.async { [weak self] in
+                    self?.delegate?.didFailToLoadData(with: error)
+                }
+                print("Failed to load image")
             }
             
             let rating = Float(movie.rating) ?? 0
