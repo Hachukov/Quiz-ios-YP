@@ -23,7 +23,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         questionFactory?.requestNextQuestion()
         delegate = AlertPresenter(delegate: self)
         statisticService = StatisticServiceImplementation()
-        questionFactory?.loadData()
+        questionFactory?.loadData()     
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -83,7 +83,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         activityIndicator.isHidden = false // индикатор загруски скрыт
         activityIndicator.stopAnimating()
     }
-    private func showNetworkError(message: String) {
+     func showNetworkError(message: String) {
         hideLoadingIndicator()
         
         let alert = AlertModel(title: "Ошибка",
