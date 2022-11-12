@@ -93,7 +93,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             guard let self = self else { return }
             self.resetGame()
         }
+
         guard let alert =  delegate?.showAlert(alertModel: alert) else { return }
+         alert.view.accessibilityIdentifier = "Game results"
         present(alert, animated: true)
     }
     
@@ -151,7 +153,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else {return}
+            guard let self = self else { return }
             self.showNextQuestionOrResults()
             self.imageView.layer.borderWidth = 0
         }
@@ -166,7 +168,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             let text = "Ваш результат: \(correctAnswers) из 10"
             let viewModel = QuizResultsViewModel(title: "Этот раунд окончен!",
                                                  text: text,
-                                                 buttonText: "Сыграть еще раз")
+                                                 buttonText: "Сыграть ещё раз")
             show(quiz: viewModel)
         } else {
             currentQuestionIndex += 1

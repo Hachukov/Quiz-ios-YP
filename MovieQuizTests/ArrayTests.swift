@@ -5,7 +5,6 @@
 //  Created by Arsen Hachuk on 09.11.2022.
 //
 
-import Foundation
 import XCTest
 @testable import MovieQuiz // Импортируем приложение для тестирование
 
