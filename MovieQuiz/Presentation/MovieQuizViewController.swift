@@ -3,7 +3,7 @@ import UIKit
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterProtocol {
     // MARK: - Lifecycle
     @IBOutlet weak private var imageView: UIImageView!
-    @IBOutlet weak private var textLabel: UILabel!
+    @IBOutlet weak  var textLabel: UILabel!
     @IBOutlet weak private var counterLabel: UILabel!
     @IBOutlet weak private var yesButton: UIButton!
     @IBOutlet weak private var noButton: UIButton!
@@ -23,6 +23,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         delegate = AlertPresenter(delegate: self)
         statisticService = StatisticServiceImplementation()
         questionFactory?.loadData()
+        presenter.movieQuizViewComtroller = self
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -82,6 +83,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         activityIndicator.isHidden = false // индикатор загруски скрыт
         activityIndicator.stopAnimating()
     }
+    
     func showNetworkError(message: String) {
         hideLoadingIndicator()
         
@@ -104,39 +106,24 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         self.counterLabel.text = step.questionNumber
     }
     
-    //    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-    //        self.textLabel.text = model.text
-    //        self.currentQuestion = model // тут мы сохроняем текущий вопрос
-    //        return QuizStepViewModel(image: UIImage(data: model.image) ?? UIImage(),
-    //                                 question: model.text,
-    //                                 questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
-    //    }
+//        private func convert(model: QuizQuestion) -> QuizStepViewModel {
+//            self.textLabel.text = model.text
+//            self.currentQuestion = model // тут мы сохроняем текущий вопрос
+//            return QuizStepViewModel(image: UIImage(data: model.image) ?? UIImage(),
+//                                     question: model.text,
+//                                     questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
+//        }
     @IBAction private func noButton(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        
-        if currentQuestion.correctAnswer == false {
-            showAnswerResult(isCorrect: true)
-        } else {
-            showAnswerResult(isCorrect: false)
-        }
+        presenter.currentQuestion = currentQuestion
+        presenter.noButton()
     }
     
     @IBAction private func yesButton(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else {
-            print("error")
-            return
-        }
-        
-        if currentQuestion.correctAnswer == true {
-            showAnswerResult(isCorrect: true)
-        } else {
-            showAnswerResult(isCorrect: false)
-        }
+        presenter.currentQuestion = currentQuestion
+        presenter.yesButton()
     }
     
-    private func showAnswerResult(isCorrect: Bool) {
+     func showAnswerResult(isCorrect: Bool) {
         imageView.layer.masksToBounds = true // разрешение на рисование
         imageView.layer.borderWidth = 8 // толщина рамки
         imageView.layer.cornerRadius = 20 // радиус скругление углов

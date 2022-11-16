@@ -58,7 +58,7 @@
                                             <constraint firstAttribute="width" secondItem="8Re-Im-NL3" secondAttribute="height" multiplier="2:3" id="g3A-Sk-rzL"/>
                                         </constraints>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Рейтинг этого фильма меньше, чем 5?" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="9" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WdA-C7-TzX" userLabel="Question Label">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Рейтинг этого фильма больше чем 8.5 ?" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="9" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WdA-C7-TzX" userLabel="Question Label">
                                         <rect key="frame" x="0.0" y="625" width="374" height="60"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="60" id="LZ8-xy-eQs"/>
