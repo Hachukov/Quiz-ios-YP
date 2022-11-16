@@ -2,7 +2,7 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterProtocol {
     // MARK: - Lifecycle
-    @IBOutlet weak private var imageView: UIImageView!
+    @IBOutlet weak  var imageView: UIImageView!
     @IBOutlet weak  var textLabel: UILabel!
     @IBOutlet weak private var counterLabel: UILabel!
     @IBOutlet weak private var yesButton: UIButton!
@@ -20,23 +20,16 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         showLoadingIndicator()
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.requestNextQuestion()
+        questionFactory?.loadData()
         delegate = AlertPresenter(delegate: self)
         statisticService = StatisticServiceImplementation()
-        questionFactory?.loadData()
         presenter.movieQuizViewComtroller = self
     }
     
     // MARK: - QuestionFactoryDelegate
     func didRecieveNextQuestion(question: QuizQuestion?) {
         imageView.layer.cornerRadius = 20
-        guard let question = question else {
-            return
-        }
-        currentQuestion = question
-        let viewModel = presenter.convert(model: question)
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
+        presenter.didRecieveNextQuestion(question: question)
     }
     
     // MARK: - AlertPresenterDelegate
@@ -51,7 +44,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
     }
     
-    private func show(quiz result: QuizResultsViewModel) {
+     func show(quiz result: QuizResultsViewModel) {
         guard let statisticService = statisticService else {return}
         self.statisticService?.gamesCount += 1
         self.statisticService?.allTimeQuestions +=  presenter.questionsAmount
@@ -101,7 +94,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     }
     
     // MARK: - AlertPresenterProtocol
-    private func show(quiz step: QuizStepViewModel) {
+     func show(quiz step: QuizStepViewModel) {
         self.imageView.image = step.image
         self.counterLabel.text = step.questionNumber
     }
@@ -114,12 +107,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
 //                                     questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
 //        }
     @IBAction private func noButton(_ sender: Any) {
-        presenter.currentQuestion = currentQuestion
         presenter.noButton()
     }
     
     @IBAction private func yesButton(_ sender: Any) {
-        presenter.currentQuestion = currentQuestion
         presenter.yesButton()
     }
     
@@ -140,27 +131,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-            self.showNextQuestionOrResults()
+            self.presenter.correctAnswers = self.correctAnswers
+            self.presenter.questionFactory = self.questionFactory
+            self.presenter.showNextQuestionOrResults()
             self.imageView.layer.borderWidth = 0
         }
     }
     
-    private func showNextQuestionOrResults() {
-        // включение кликабельности кнопок
-        yesButton.isEnabled = true
-        noButton.isEnabled = true
-        
-        if presenter.isLastQuestion() {
-            let text = "Ваш результат: \(correctAnswers) из 10"
-            let viewModel = QuizResultsViewModel(title: "Этот раунд окончен!",
-                                                 text: text,
-                                                 buttonText: "Сыграть ещё раз")
-            show(quiz: viewModel)
-        } else {
-            presenter.switchToNextQuestion()
-            questionFactory?.requestNextQuestion()
-        }
-    }
     
     // MARK: - Network methods
     func didLoadDataFromServer() {
