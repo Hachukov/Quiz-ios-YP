@@ -39,7 +39,6 @@ final class MovieQuizViewControllerProtocolMock: MovieQuizViewControllerProtocol
     func showNetworkError(message: String) {
         
     }
-    
 }
 
 
