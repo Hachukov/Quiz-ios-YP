@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, AlertPresenterProtocol {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol, AlertPresenterProtocol {
     // MARK: - Lifecycle
     @IBOutlet weak  var imageView: UIImageView!
     @IBOutlet weak  var textLabel: UILabel!
@@ -8,7 +8,6 @@ final class MovieQuizViewController: UIViewController, AlertPresenterProtocol {
     @IBOutlet weak private var yesButton: UIButton!
     @IBOutlet weak private var noButton: UIButton!
     @IBOutlet weak private var activityIndicator: UIActivityIndicatorView!
-    private var currentQuestion: QuizQuestion?
     private var delegate: AlertPresenterDelegate?
     private var statisticService: StatisticService?
     private var presenter: MovieQuizPresenter!
@@ -23,24 +22,15 @@ final class MovieQuizViewController: UIViewController, AlertPresenterProtocol {
     
     // MARK: - AlertPresenterDelegate
     func resetGame() {
-        
+        presenter.resetGame()
     }
     
      func show(quiz result: QuizResultsViewModel) {
-        guard let statisticService = statisticService else {return}
-        self.statisticService?.gamesCount += 1
-        self.statisticService?.allTimeQuestions +=  presenter.questionsAmount
-         self.statisticService?.allTimeCorrectAnswers += presenter.correctAnswers
-         self.statisticService?.store(correct: presenter.correctAnswers,
-                                      total: presenter.questionsAmount)
-        
+
+         let message = presenter.makeResultsMessage()
+         
         let alertModel = AlertModel(title: result.title,
-                                    message: """
-                                    Ваш результат: \(presenter.correctAnswers)/\(presenter.questionsAmount)
-                                    Количество сыгранных квизов: \(statisticService.gamesCount)
-                                    Рекорд: \(statisticService.bestGame.correct)/\(presenter.questionsAmount) (\(statisticService.bestGame.date.dateTimeString))
-                                    Средняя точнось: \(String(format: "%.2f", statisticService.totalAccuracy))%"
-                                    """,
+                                    message: message,
                                     buttonText: result.buttonText)
         
         guard let alert = delegate?.showAlert(alertModel: alertModel) else { return }
@@ -78,6 +68,7 @@ final class MovieQuizViewController: UIViewController, AlertPresenterProtocol {
     
     // MARK: - AlertPresenterProtocol
      func show(quiz step: QuizStepViewModel) {
+         self.imageView.layer.cornerRadius = 20
         self.imageView.image = step.image
         self.counterLabel.text = step.questionNumber
     }
@@ -90,22 +81,20 @@ final class MovieQuizViewController: UIViewController, AlertPresenterProtocol {
         presenter.yesButton()
     }
     
-     func showAnswerResult(isCorrect: Bool) {
-        imageView.layer.masksToBounds = true // разрешение на рисование
-        imageView.layer.borderWidth = 8 // толщина рамки
-        imageView.layer.cornerRadius = 20 // радиус скругление углов
-        // отключение кликабельности кнопок
+    
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.cornerRadius = 20
+        imageView.layer.borderColor = isCorrectAnswer ? UIColor.YPGreen.cgColor : UIColor.YPRed.cgColor
         yesButton.isEnabled = false
         noButton.isEnabled = false
-         presenter.didAnswer(isCorrect: isCorrect)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.presenter.showNextQuestionOrResults()
-            self.imageView.layer.borderWidth = 0
-            self.yesButton.isEnabled = true
-            self.noButton.isEnabled = true
-        }
+    }
+    
+    func disableImageBorder() {
+        imageView.layer.borderWidth = 0
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
     }
     
 }

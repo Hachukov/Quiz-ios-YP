@@ -10,7 +10,7 @@ import UIKit
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     var currentQuestion: QuizQuestion?
-    weak var movieQuizViewController: MovieQuizViewController?
+    weak var movieQuizViewController: MovieQuizViewControllerProtocol?
     var questionFactory: QuestionFactoryProtocol?
     private let statisticService: StatisticService?
     var correctAnswers: Int = 0
@@ -18,7 +18,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     let questionsAmount = 10
     private var currentQuestionIndex = 0
     
-    init(movieViewController: MovieQuizViewController) {
+    init(movieViewController: MovieQuizViewControllerProtocol) {
         self.movieQuizViewController = movieViewController
         statisticService = StatisticServiceImplementation()
         
@@ -41,7 +41,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
-        movieQuizViewController?.textLabel.text = model.text
         return  QuizStepViewModel(image: UIImage(data: model.image) ?? UIImage(),
                                   question: model.text,
                                   questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
@@ -60,16 +59,44 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             return
         }
         let givenAnswer = isYes
-        movieQuizViewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     
     func didAnswer(isCorrect: Bool) {
         if isCorrect {
-            movieQuizViewController?.imageView.layer.borderColor = UIColor.YPGreen.cgColor// цвет рамки
             correctAnswers += 1
-            print(correctAnswers)
-        } else {
-            movieQuizViewController?.imageView.layer.borderColor = UIColor.YPRed.cgColor // цвет рамки
+        }
+    }
+    
+    func makeResultsMessage() -> String {
+        guard let statisticService = statisticService else {
+            return "error"
+        }
+        statisticService.store(correct: correctAnswers, total: questionsAmount)
+        
+        let bestGame = statisticService.bestGame
+        
+        let totalPlaysCountLine = "Количество сыгранных квизов: \(statisticService.gamesCount)"
+        let currentGameResultLine = "Ваш результат: \(correctAnswers)\\\(questionsAmount)"
+        let bestGameInfoLine = "Рекорд: \(bestGame.correct)\\\(bestGame.total)" + "(\(bestGame.date.dateTimeString))"
+        let averageAccuracyLine = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
+        
+        let resultMessage = [
+            currentGameResultLine, totalPlaysCountLine, bestGameInfoLine, averageAccuracyLine
+        ].joined(separator: "\n")
+        return resultMessage
+        
+    }
+    
+    func proceedWithAnswer(isCorrect: Bool) {
+        didAnswer(isCorrect: isCorrect)
+        
+        movieQuizViewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.proceedToNextQuestionOrResults()
+            self.movieQuizViewController?.disableImageBorder()
         }
     }
     
@@ -96,7 +123,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    func showNextQuestionOrResults() {
+    func proceedToNextQuestionOrResults() {
      
         if self.isLastQuestion() {
             let text =  "Ваш результат: \(correctAnswers) из 10"
@@ -115,7 +142,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         resetQuestionIndex()
         // Обнуляем счетчик правельных ответов
         correctAnswers = 0
-            movieQuizViewController?.counterLabel.text = "\(correctAnswers)/\(questionsAmount)"
         // заново показываем первый вопрос
         questionFactory?.requestNextQuestion()
         
