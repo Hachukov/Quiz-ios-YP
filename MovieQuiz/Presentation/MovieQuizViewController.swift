@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterProtocol {
+final class MovieQuizViewController: UIViewController, AlertPresenterProtocol {
     // MARK: - Lifecycle
     @IBOutlet weak  var imageView: UIImageView!
     @IBOutlet weak  var textLabel: UILabel!
@@ -8,39 +8,21 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     @IBOutlet weak private var yesButton: UIButton!
     @IBOutlet weak private var noButton: UIButton!
     @IBOutlet weak private var activityIndicator: UIActivityIndicatorView!
-    //private var correctAnswers: Int = 0
-    private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     private var delegate: AlertPresenterDelegate?
     private var statisticService: StatisticService?
-    private let presenter = MovieQuizPresenter()
+    private var presenter: MovieQuizPresenter!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         showLoadingIndicator()
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        questionFactory?.requestNextQuestion()
-        questionFactory?.loadData()
+        presenter = MovieQuizPresenter(movieViewController: self)
         delegate = AlertPresenter(delegate: self)
         statisticService = StatisticServiceImplementation()
-        presenter.movieQuizViewController = self
-    }
-    
-    // MARK: - QuestionFactoryDelegate
-    func didRecieveNextQuestion(question: QuizQuestion?) {
-        imageView.layer.cornerRadius = 20
-        presenter.didRecieveNextQuestion(question: question)
     }
     
     // MARK: - AlertPresenterDelegate
     func resetGame() {
-//        //Обнуляем счетчик вопросов
-//        presenter.resetQuestionIndex()
-//        // Обнуляем счетчик правельных ответов
-//        correctAnswers = 0
-//        counterLabel.text = "\(presenter.correctAnswers)/\(presenter.questionsAmount)"
-//        // заново показываем первый вопрос
-//        questionFactory?.requestNextQuestion()
         
     }
     
@@ -99,14 +81,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         self.imageView.image = step.image
         self.counterLabel.text = step.questionNumber
     }
-    
-//        private func convert(model: QuizQuestion) -> QuizStepViewModel {
-//            self.textLabel.text = model.text
-//            self.currentQuestion = model // тут мы сохроняем текущий вопрос
-//            return QuizStepViewModel(image: UIImage(data: model.image) ?? UIImage(),
-//                                     question: model.text,
-//                                     questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
-//        }
+
     @IBAction private func noButton(_ sender: Any) {
         presenter.noButton()
     }
@@ -126,23 +101,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-            self.presenter.questionFactory = self.questionFactory
             self.presenter.showNextQuestionOrResults()
             self.imageView.layer.borderWidth = 0
             self.yesButton.isEnabled = true
             self.noButton.isEnabled = true
         }
-    }
-    
-    
-    // MARK: - Network methods
-    func didLoadDataFromServer() {
-        activityIndicator.isHidden = true
-        questionFactory?.requestNextQuestion()
-    }
-    // обработка ошибки загрузки
-    func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription)
     }
     
 }

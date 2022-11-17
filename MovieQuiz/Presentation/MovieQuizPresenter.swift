@@ -12,7 +12,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     var currentQuestion: QuizQuestion?
     weak var movieQuizViewController: MovieQuizViewController?
     var questionFactory: QuestionFactoryProtocol?
-    
+    private let statisticService: StatisticService?
     var correctAnswers: Int = 0
     
     let questionsAmount = 10
@@ -20,14 +20,12 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     init(movieViewController: MovieQuizViewController) {
         self.movieQuizViewController = movieViewController
+        statisticService = StatisticServiceImplementation()
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         movieViewController.showLoadingIndicator()
     }
-    
-    init() {}
-    
 
     
     func isLastQuestion() -> Bool {
