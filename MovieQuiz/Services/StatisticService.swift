@@ -88,7 +88,6 @@ struct GameRecord: Codable {
     var correct: Int
     let total: Int
     var date = Date()
-    
 }
 
 // расширения Comparable дает возможность сравнивать
@@ -96,5 +95,4 @@ extension GameRecord: Comparable {
     static func < (lhs: GameRecord, rhs: GameRecord) -> Bool {
         return lhs.correct < rhs.correct
     }
-    
 }
