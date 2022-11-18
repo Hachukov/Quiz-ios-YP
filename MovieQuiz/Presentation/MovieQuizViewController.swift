@@ -46,7 +46,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     }
     
      func hideLoadingIndicator() {
-        activityIndicator.isHidden = false // индикатор загруски скрыт
+        activityIndicator.isHidden = true // индикатор загруски скрыт
         activityIndicator.stopAnimating()
     }
     
