@@ -89,6 +89,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         imageView.layer.borderColor = isCorrectAnswer ? UIColor.YPGreen.cgColor : UIColor.YPRed.cgColor
         yesButton.isEnabled = false
         noButton.isEnabled = false
+        
     }
     
     func disableImageBorder() {

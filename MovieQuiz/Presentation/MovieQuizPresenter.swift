@@ -12,7 +12,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     var currentQuestion: QuizQuestion?
     weak var movieQuizViewController: MovieQuizViewControllerProtocol?
     var questionFactory: QuestionFactoryProtocol?
-    private let statisticService: StatisticService?
+    private var statisticService: StatisticService?
     var correctAnswers: Int = 0
     
     let questionsAmount = 10
@@ -25,6 +25,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         movieViewController.showLoadingIndicator()
+
     }
 
     
@@ -65,6 +66,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     func didAnswer(isCorrect: Bool) {
         if isCorrect {
             correctAnswers += 1
+            statisticService?.allTimeCorrectAnswers += 1
         }
     }
     
@@ -126,12 +128,15 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     func proceedToNextQuestionOrResults() {
      
         if self.isLastQuestion() {
+            statisticService?.allTimeQuestions += questionsAmount
+            statisticService?.gamesCount += 1
             let text =  "Ваш результат: \(correctAnswers) из 10"
             let viewModel = QuizResultsViewModel(
                 title: "Этот раунд окончен!",
                 text: text,
                 buttonText: "Сыграть ещё раз")
             movieQuizViewController?.show(quiz: viewModel)
+            
         } else {
             self.switchToNextQuestion()
             questionFactory?.requestNextQuestion()
